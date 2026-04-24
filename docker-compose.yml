@@ -1,0 +1,36 @@
+version: '2.4'
+
+# Circle Hub — balenaOS service definition
+# Push to Balena Cloud: balena push <app-name>
+
+services:
+  circle-hub:
+    build: .
+    restart: always
+
+    # GPU/DRM access — required for flutter-pi DRM/KMS rendering
+    privileged: true
+
+    # Mount DRM card and input devices
+    devices:
+      - /dev/dri:/dev/dri
+      - /dev/input:/dev/input
+      - /dev/gpiomem:/dev/gpiomem   # GPIO access for solenoid bell
+
+    volumes:
+      - /tmp/flutter-logs:/var/log/flutter
+
+    environment:
+      # Override city in balena dashboard without rebuilding
+      - WEATHER_CITY=London
+
+      # Set actual API keys here or in balena dashboard env vars
+      - OPENWEATHER_KEY=${OPENWEATHER_KEY:-}
+      - NEWS_API_KEY=${NEWS_API_KEY:-}
+
+      # flutter-pi display target (DRM device path)
+      - FLUTTER_PI_DISPLAY=/dev/dri/card0
+
+    # Limit memory — Pi Zero 2W has 512MB total
+    mem_limit: 400m
+    memswap_limit: 512m

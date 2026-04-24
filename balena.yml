@@ -1,0 +1,21 @@
+name: circle-hub
+type: sw.application
+description: "Circle Hub Smart Alarm — 1080x1080 circular display"
+
+# Target device type
+post-provisioning: ""
+
+# balena CLI deploy config
+build:
+  context: .
+
+# Default env vars shown in the balena dashboard
+# Override these per-device in the dashboard without a rebuild
+defaultDeviceConfig:
+  RESIN_HOST_CONFIG_gpu_mem: "64"
+  RESIN_HOST_CONFIG_dtoverlay: "vc4-kms-v3d"
+  RESIN_HOST_CONFIG_hdmi_force_hotplug: "1"
+  # Waveshare 5-inch 1080x1080 HDMI resolution
+  RESIN_HOST_CONFIG_hdmi_group: "2"
+  RESIN_HOST_CONFIG_hdmi_mode: "82"
+  RESIN_HOST_CONFIG_hdmi_cvt: "1080 1080 60 6 0 0 0"
