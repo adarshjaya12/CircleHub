@@ -25,14 +25,6 @@ class RetroFace extends StatelessWidget {
             children: [
               Container(color: CircleHub.background),
 
-              // ── Top accent line ────────────────────────────────────────
-              Positioned(
-                top: R * 0.44,
-                left: R * 0.18,
-                right: R * 0.18,
-                child: Container(height: 1.5, color: CircleHub.handSecond.withAlpha(180)),
-              ),
-
               // ── Main time ─────────────────────────────────────────────
               Center(
                 child: Column(
@@ -84,14 +76,6 @@ class RetroFace extends StatelessWidget {
                     ),
                   ],
                 ),
-              ),
-
-              // ── Bottom accent line ─────────────────────────────────────
-              Positioned(
-                bottom: R * 0.44,
-                left: R * 0.18,
-                right: R * 0.18,
-                child: Container(height: 1.5, color: CircleHub.handSecond.withAlpha(180)),
               ),
 
               // ── Date bottom ────────────────────────────────────────────

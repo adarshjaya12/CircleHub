@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../widgets/circular_scaffold.dart';
-import '../widgets/page_indicator.dart';
 import '../features/clock/clock_page.dart';
 import '../features/weather/weather_page.dart';
 import '../features/news/news_page.dart';
@@ -47,8 +46,6 @@ class _HubPageState extends State<HubPage> {
 
   @override
   Widget build(BuildContext context) {
-    final R = CircleHub.radius;
-
     return CircularScaffold(
       child: Stack(
         children: [
@@ -60,13 +57,6 @@ class _HubPageState extends State<HubPage> {
             children: _pages,
           ),
 
-          // ── Page indicator (bottom safe zone) ─────────────────────────────
-          Positioned(
-            bottom: (R - CircleHub.safeRadius) + R * 0.06,
-            left: 0,
-            right: 0,
-            child: PageIndicator(count: _pages.length, current: _current),
-          ),
         ],
       ),
     );

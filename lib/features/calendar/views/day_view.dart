@@ -71,6 +71,8 @@ class DayView extends StatelessWidget {
                   )
                 : ListView.separated(
                     padding: EdgeInsets.zero,
+                    physics: const NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
                     itemCount: events.length,
                     separatorBuilder: (_, __) => SizedBox(height: R * 0.04),
                     itemBuilder: (_, i) =>

@@ -40,12 +40,15 @@ class CircleHub {
   static const Color alarmSnoozed   = Color(0xFFF5A623);
   static const Color alarmSet       = Color(0xFF4A9EFF);
 
-  // ── API Keys (replace with your own) ─────────────────────────────────────
-  static const String openWeatherKey = 'YOUR_OPENWEATHER_KEY';
-  static const String newsApiKey     = 'YOUR_NEWSAPI_KEY';
+  // ── API Keys — injected at build time via --dart-define-from-file=local.env
+  // Never hardcode keys here. Run with: flutter run --dart-define-from-file=local.env
+  static const String openWeatherKey =
+      String.fromEnvironment('OPENWEATHER_KEY', defaultValue: '');
+  static const String newsApiKey =
+      String.fromEnvironment('NEWSAPI_KEY', defaultValue: '');
 
   /// Default city for weather — can be overridden in settings.
-  static const String defaultCity    = 'Fort Myers';
+  static const String defaultCity    = 'Chicago';
 
   // ── GPIO ─────────────────────────────────────────────────────────────────
   static const int bellGpioPin      = 17; // BCM numbering

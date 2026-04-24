@@ -95,21 +95,15 @@ class _CardView extends StatelessWidget {
                 SizedBox(height: R * 0.06),
 
                 // Icon + temperature
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    WeatherIcon(code: data.iconCode, size: R * 0.36),
-                    SizedBox(width: R * 0.04),
-                    Text(tempStr,
-                        style: TextStyle(
-                          color: CircleHub.textPrimary,
-                          fontSize: R * 0.36,
-                          fontWeight: FontWeight.w200,
-                          height: 1,
-                        )),
-                  ],
-                ),
+                WeatherIcon(code: data.iconCode, size: R * 0.30),
+                SizedBox(height: R * 0.02),
+                Text(tempStr,
+                    style: TextStyle(
+                      color: CircleHub.textPrimary,
+                      fontSize: R * 0.36,
+                      fontWeight: FontWeight.w200,
+                      height: 1,
+                    )),
 
                 // Description
                 Text(data.description.toUpperCase(),
@@ -322,34 +316,33 @@ class _VisualView extends StatelessWidget {
     return LayoutBuilder(builder: (_, box) {
       final R    = box.maxWidth / 2;
       final hPad = R * 0.20;
-      final vPad = R * 0.10;
 
       return Container(
         color: CircleHub.background,
-        padding: EdgeInsets.symmetric(horizontal: hPad, vertical: vPad),
+        padding: EdgeInsets.symmetric(horizontal: hPad),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
 
             // ── Large centered icon ──────────────────────────────────────────
-            WeatherIcon(code: data.iconCode, size: R * 0.50),
+            WeatherIcon(code: data.iconCode, size: R * 0.38),
 
-            SizedBox(height: R * 0.06),
+            SizedBox(height: R * 0.03),
 
             // ── Temperature ──────────────────────────────────────────────────
             Text(
               '${data.tempF.round()}°',
               style: TextStyle(
                 color: CircleHub.textPrimary,
-                fontSize: R * 0.45,
+                fontSize: R * 0.38,
                 fontWeight: FontWeight.w300,
                 height: 1.0,
                 letterSpacing: -2,
               ),
             ),
 
-            SizedBox(height: R * 0.08),
+            SizedBox(height: R * 0.05),
 
             // ── Sentence ──────────────────────────────────────────────────────
             Text(
@@ -357,13 +350,13 @@ class _VisualView extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: CircleHub.textSecondary,
-                fontSize: R * 0.13,
+                fontSize: R * 0.11,
                 fontWeight: FontWeight.w400,
-                height: 1.4,
+                height: 1.35,
               ),
             ),
 
-            SizedBox(height: R * 0.10),
+            SizedBox(height: R * 0.06),
 
             // ── Hourly strip ───────────────────────────────────────────────────
             Row(

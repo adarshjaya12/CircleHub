@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'core/theme.dart';
-import 'hub/hub_page.dart';
+import 'features/splash/splash_screen.dart';
 
 class CircleHubApp extends StatelessWidget {
   const CircleHubApp({super.key});
@@ -11,7 +11,7 @@ class CircleHubApp extends StatelessWidget {
       title: 'Circle Hub',
       theme: CircleHubTheme.dark,
       debugShowCheckedModeBanner: false,
-      home: const HubPage(),
+      home: const SplashScreen(),
     );
   }
 }
