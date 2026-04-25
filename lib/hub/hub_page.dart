@@ -7,10 +7,7 @@ import '../features/news/news_page.dart';
 import '../features/gallery/gallery_page.dart';
 import '../features/alarm/alarm_page.dart';
 import '../features/calendar/calendar_page.dart';
-import '../core/constants.dart';
-
-/// Root page — wraps the [PageView] in a [CircularScaffold] and shows
-/// the page-indicator dots overlaid inside the circle's safe zone.
+/// Root page — wraps the [PageView] in a [CircularScaffold].
 class HubPage extends StatefulWidget {
   const HubPage({super.key});
 
@@ -20,7 +17,6 @@ class HubPage extends StatefulWidget {
 
 class _HubPageState extends State<HubPage> {
   final _controller = PageController();
-  int _current = 0;
 
   static const _pages = <Widget>[
     WeatherPage(),
@@ -53,7 +49,6 @@ class _HubPageState extends State<HubPage> {
           PageView(
             controller: _controller,
             physics: const BouncingScrollPhysics(),
-            onPageChanged: (i) => setState(() => _current = i),
             children: _pages,
           ),
 

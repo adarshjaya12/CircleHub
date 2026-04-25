@@ -1,7 +1,9 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../hub/hub_page.dart';
+import 'pairing_screen.dart';
 
 // ── Timing constants (seconds, matching HTML design) ─────────────────────
 class _T {
@@ -182,11 +184,16 @@ class _SplashScreenState extends State<SplashScreen>
     )..forward().whenComplete(_navigate);
   }
 
-  void _navigate() {
+  Future<void> _navigate() async {
+    if (!mounted) return;
+    // First boot check — if no token stored, show pairing screen
+    final prefs = await SharedPreferences.getInstance();
+    final hasToken = (prefs.getString('device_token') ?? '').isNotEmpty;
     if (!mounted) return;
     Navigator.of(context).pushReplacement(
       PageRouteBuilder(
-        pageBuilder: (_, __, ___) => const HubPage(),
+        pageBuilder: (_, __, ___) =>
+            hasToken ? const HubPage() : const PairingScreen(),
         transitionsBuilder: (_, anim, __, child) =>
             FadeTransition(opacity: anim, child: child),
         transitionDuration: const Duration(milliseconds: 400),

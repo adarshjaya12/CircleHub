@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../core/device_service.dart';
 
 // ── Color palette ─────────────────────────────────────────────────────────────
 
@@ -59,8 +60,9 @@ class CalendarEvent {
   factory CalendarEvent.fromJson(Map<String, dynamic> j) => CalendarEvent(
         id: j['id'] as String,
         title: j['title'] as String,
-        start: DateTime.parse(j['start'] as String),
-        end: DateTime.parse(j['end'] as String),
+        // API uses start_time/end_time; local cache uses start/end
+        start: DateTime.parse((j['start_time'] ?? j['start']) as String),
+        end:   DateTime.parse((j['end_time']   ?? j['end'])   as String),
         colorIndex: j['colorIndex'] as int? ?? 0,
       );
 }
@@ -174,9 +176,16 @@ class CalendarNotifier extends StateNotifier<CalendarState> {
 
   // ── Persistence ─────────────────────────────────────────────────────────────
 
+  /// Load: try API first, fall back to local cache.
   Future<void> _load() async {
+    await _loadFromCache();
+    _fetchFromApi(); // fire-and-forget; updates state when done
+  }
+
+  Future<void> _loadFromCache() async {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getStringList('calendar_events') ?? [];
+    if (raw.isEmpty) return;
     state = state.copyWith(
       events: raw
           .map((s) =>
@@ -185,12 +194,30 @@ class CalendarNotifier extends StateNotifier<CalendarState> {
     );
   }
 
-  Future<void> _save() async {
+  Future<void> _fetchFromApi() async {
+    try {
+      final svc    = DeviceService();
+      final token  = await svc.getToken();
+      final raw    = await svc.fetchCalendarEvents(token);
+      if (raw.isEmpty) return;
+      final events = raw
+          .map((e) => CalendarEvent.fromJson(e as Map<String, dynamic>))
+          .toList();
+      state = state.copyWith(events: events);
+      _saveToCache(events);
+    } catch (_) {
+      // API unavailable — keep cached events
+    }
+  }
+
+  Future<void> _saveToCache(List<CalendarEvent> events) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList(
         'calendar_events',
-        state.events.map((e) => jsonEncode(e.toJson())).toList());
+        events.map((e) => jsonEncode(e.toJson())).toList());
   }
+
+  Future<void> _save() async => _saveToCache(state.events);
 }
 
 // ── Provider ──────────────────────────────────────────────────────────────────

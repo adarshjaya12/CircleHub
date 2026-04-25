@@ -40,10 +40,8 @@ class CircleHub {
   static const Color alarmSnoozed   = Color(0xFFF5A623);
   static const Color alarmSet       = Color(0xFF4A9EFF);
 
-  // ── API Keys — injected at build time via --dart-define-from-file=local.env
-  // Never hardcode keys here. Run with: flutter run --dart-define-from-file=local.env
-  static const String openWeatherKey =
-      String.fromEnvironment('OPENWEATHER_KEY', defaultValue: '');
+  // ── API Keys — all third-party keys live on the CircleHub API server.
+  // The device only holds a device JWT. See lib/core/device_service.dart.
   static const String newsApiKey =
       String.fromEnvironment('NEWSAPI_KEY', defaultValue: '');
 

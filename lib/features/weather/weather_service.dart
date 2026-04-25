@@ -1,56 +1,61 @@
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
-import '../../core/constants.dart';
+import '../../core/device_service.dart';
 import 'weather_models.dart';
 
-final weatherServiceProvider = Provider((ref) => WeatherService());
+final weatherServiceProvider = Provider((ref) {
+  final deviceService = ref.read(deviceServiceProvider);
+  return WeatherService(deviceService);
+});
 
-/// Fetches current conditions + 5-day forecast from OpenWeatherMap free tier.
+/// Fetches weather data through the CircleHub API proxy.
+/// The OWM key never touches the device — it lives on the server.
 class WeatherService {
-  static const _baseUrl = 'https://api.openweathermap.org/data/2.5';
+  final DeviceService _deviceService;
+  WeatherService(this._deviceService);
 
-  Future<WeatherData> fetchWeather({
-    String city = CircleHub.defaultCity,
-  }) async {
-    final key = CircleHub.openWeatherKey;
+  static const _base = DeviceService.apiBase;
 
-    // cnt=8 → 8 × 3 h = 24 h of hourly-ish data for the graph
-    final currentUri  = Uri.parse('$_baseUrl/weather?q=$city&appid=$key&units=imperial');
-    final forecastUri = Uri.parse('$_baseUrl/forecast?q=$city&appid=$key&units=imperial&cnt=8');
+  Future<WeatherData> fetchWeather({String? city}) async {
+    final token = await _deviceService.getToken();
+    final headers = {'Authorization': 'Bearer $token'};
+
+    // Use provided city, or fetch the device's configured location from the API
+    final resolvedCity = city ?? await _deviceService.fetchLocation(token);
+    final cityEncoded = Uri.encodeComponent(resolvedCity);
 
     final responses = await Future.wait([
-      http.get(currentUri),
-      http.get(forecastUri),
+      http.get(Uri.parse('$_base/api/weather/current?city=$cityEncoded'),
+          headers: headers),
+      http.get(Uri.parse('$_base/api/weather/forecast?city=$cityEncoded&count=8'),
+          headers: headers),
     ]);
 
     if (responses[0].statusCode != 200) {
-      throw Exception('Weather API error ${responses[0].statusCode}');
+      throw Exception('Weather API error ${responses[0].statusCode}: ${responses[0].body}');
     }
 
     final current  = jsonDecode(responses[0].body) as Map<String, dynamic>;
     final foreJson = jsonDecode(responses[1].body) as Map<String, dynamic>;
     final items    = foreJson['list'] as List;
 
-    // ── Hourly points for the graph (all 8 items) ────────────────────────────
+    // ── Hourly points ────────────────────────────────────────────────────────
     final hourly = <HourlyPoint>[];
     for (final item in items) {
       final dt   = DateTime.fromMillisecondsSinceEpoch((item['dt'] as int) * 1000);
       final main = item['main'] as Map<String, dynamic>;
-      hourly.add(HourlyPoint(
-        time:  dt,
-        tempF: (main['temp'] as num).toDouble(),
-      ));
+      hourly.add(HourlyPoint(time: dt, tempF: (main['temp'] as num).toDouble()));
     }
 
-    // ── One entry per unique calendar day (up to 4) ──────────────────────────
+    // ── Forecast days (up to 4) ───────────────────────────────────────────────
     final forecastDays = <ForecastDay>[];
     final seen = <String>{};
     for (final item in items) {
       final dt   = DateTime.fromMillisecondsSinceEpoch((item['dt'] as int) * 1000);
-      final key2 = '${dt.year}-${dt.month}-${dt.day}';
-      if (seen.contains(key2)) continue;
-      seen.add(key2);
+      final key  = '${dt.year}-${dt.month}-${dt.day}';
+      if (seen.contains(key)) continue;
+      seen.add(key);
       final main    = item['main'] as Map<String, dynamic>;
       final weather = (item['weather'] as List).first as Map<String, dynamic>;
       forecastDays.add(ForecastDay(
